@@ -36,9 +36,9 @@
 
 @property (nonatomic, strong) IJKFFMoviePlayerController *player;
 @property (nonatomic, strong) IJKFFOptions *options;
-@property (nonatomic, assign) CGFloat lastVolume;
 @property (nonatomic, strong) NSTimer *timer;
 @property (nonatomic, assign) BOOL isReadyToPlay;
+@property (nonatomic, copy, nullable) void (^seekCompletionHandler)(BOOL finished);
 
 @end
 
@@ -127,6 +127,8 @@
     self.timer = nil;
     _isPlaying = NO;
     _isPreparedToPlay = NO;
+    self.seekTime = 0;
+    self.seekCompletionHandler = nil;
     self->_currentTime = 0;
     self->_totalTime = 0;
     self->_bufferTime = 0;
@@ -145,9 +147,9 @@
 }
 
 - (void)seekToTime:(NSTimeInterval)time completionHandler:(void (^ __nullable)(BOOL finished))completionHandler {
+    self.seekCompletionHandler = completionHandler;
     if (self.player.duration > 0) {
         self.player.currentPlaybackTime = time;
-        if (completionHandler) completionHandler(YES);
     } else {
         self.seekTime = time;
     }
@@ -203,6 +205,11 @@
                                              selector:@selector(sizeAvailableChange:)
                                                  name:IJKMPMovieNaturalSizeAvailableNotification
                                                object:self.player];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(seekComplete:)
+                                                 name:IJKMPMoviePlayerDidSeekCompleteNotification
+                                               object:self.player];
 }
 
 - (void)removeMovieNotificationObservers {
@@ -220,6 +227,9 @@
                                                   object:_player];
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:IJKMPMovieNaturalSizeAvailableNotification
+                                                  object:_player];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:IJKMPMoviePlayerDidSeekCompleteNotification
                                                   object:_player];
 }
 
@@ -279,8 +289,8 @@
         [self play];
         self.muted = self.muted;
         if (self.seekTime > 0) {
-            [self seekToTime:self.seekTime completionHandler:nil];
-            self.seekTime = 0; // 滞空, 防止下次播放出错
+            [self seekToTime:self.seekTime completionHandler:self.seekCompletionHandler];
+            self.seekTime = 0; // 置空, 防止下次播放出错
             [self play];
         }
     }
@@ -366,6 +376,14 @@
     }
 }
 
+- (void)seekComplete:(NSNotification *)notify {
+    if (self.seekCompletionHandler) {
+        int code = [notify.userInfo[IJKMPMoviePlayerDidSeekCompleteErrorKey] intValue];
+        self.seekCompletionHandler(code == 0);
+        self.seekCompletionHandler = nil;
+    }
+}
+
 #pragma mark - getter
 
 - (ZFPlayerView *)view {
@@ -418,12 +436,9 @@
 - (void)setMuted:(BOOL)muted {
     _muted = muted;
     if (muted) {
-        self.lastVolume = self.player.playbackVolume;
         self.player.playbackVolume = 0;
     } else {
-        /// Fix first called the lastVolume is 0.
-        if (self.lastVolume == 0) self.lastVolume = self.player.playbackVolume;
-        self.player.playbackVolume = self.lastVolume;
+        self.player.playbackVolume = _volume;
     }
 }
 
@@ -450,7 +465,7 @@
 
 - (void)setVolume:(float)volume {
     _volume = MIN(MAX(0, volume), 1);
-    self.player.playbackVolume = volume;
+    self.player.playbackVolume = _volume;
 }
 
 @end
