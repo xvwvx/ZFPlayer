@@ -238,13 +238,9 @@
         self.isReadyToPlay = YES;
         self.loadState = ZFPlayerLoadStatePlaythroughOK;
         
-        if (self.isPlaying) {
-            [self play];
-            self.muted = self.muted;
-            if (self.seekTime > 0) {
-                [self seekToTime:self.seekTime completionHandler:self.seekCompletionHandler];
-                self.seekTime = 0; // 置空, 防止下次播放出错
-            }
+        if (self.seekTime > 0) {
+            [self seekToTime:self.seekTime completionHandler:self.seekCompletionHandler];
+            self.seekTime = 0; // 置空, 防止下次播放出错
         }
     }
     self->_currentTime = self.player.currentPlaybackTime > 0 ? self.player.currentPlaybackTime : 0;
@@ -292,6 +288,11 @@
     if (!self.timer) {
         self.timer = [NSTimer scheduledTimerWithTimeInterval:self.timeRefreshInterval > 0 ? self.timeRefreshInterval : 0.1 target:self selector:@selector(timerUpdate) userInfo:nil repeats:YES];
         [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
+    }
+    
+    if (self.isPlaying) {
+        [self play];
+        self.muted = self.muted;
     }
     
     if (self.playerReadyToPlay) self.playerReadyToPlay(self, self.assetURL);
