@@ -237,6 +237,15 @@
     if (self.player.currentPlaybackTime > 0 && !self.isReadyToPlay) {
         self.isReadyToPlay = YES;
         self.loadState = ZFPlayerLoadStatePlaythroughOK;
+        
+        if (self.isPlaying) {
+            [self play];
+            self.muted = self.muted;
+            if (self.seekTime > 0) {
+                [self seekToTime:self.seekTime completionHandler:self.seekCompletionHandler];
+                self.seekTime = 0; // 置空, 防止下次播放出错
+            }
+        }
     }
     self->_currentTime = self.player.currentPlaybackTime > 0 ? self.player.currentPlaybackTime : 0;
     self->_totalTime = self.player.duration;
@@ -285,15 +294,6 @@
         [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
     }
     
-    if (self.isPlaying) {
-        [self play];
-        self.muted = self.muted;
-        if (self.seekTime > 0) {
-            [self seekToTime:self.seekTime completionHandler:self.seekCompletionHandler];
-            self.seekTime = 0; // 置空, 防止下次播放出错
-            [self play];
-        }
-    }
     if (self.playerReadyToPlay) self.playerReadyToPlay(self, self.assetURL);
 }
 
