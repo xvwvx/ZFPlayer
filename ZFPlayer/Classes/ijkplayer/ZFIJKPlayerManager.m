@@ -147,10 +147,13 @@
 }
 
 - (void)seekToTime:(NSTimeInterval)time completionHandler:(void (^ __nullable)(BOOL finished))completionHandler {
-    self.seekCompletionHandler = completionHandler;
     if (self.player.duration > 0) {
         self.player.currentPlaybackTime = time;
+        if (completionHandler) {
+            completionHandler(true);
+        }
     } else {
+        self.seekCompletionHandler = completionHandler;
         self.seekTime = time;
     }
 }
