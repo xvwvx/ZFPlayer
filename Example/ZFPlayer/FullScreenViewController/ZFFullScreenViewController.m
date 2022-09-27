@@ -26,7 +26,6 @@ static NSString *kVideoCover = @"https://upload-images.jianshu.io/upload_images/
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor blackColor];
-    kAPPDelegate.allowOrentitaionRotation = YES;
     @zf_weakify(self)
     self.controlView.backBtnClickCallback = ^{
         @zf_strongify(self)
@@ -40,14 +39,14 @@ static NSString *kVideoCover = @"https://upload-images.jianshu.io/upload_images/
     self.player = [[ZFPlayerController alloc] initWithPlayerManager:playerManager containerView:self.view];
     self.player.controlView = self.controlView;
     self.player.orientationObserver.supportInterfaceOrientation = ZFInterfaceOrientationMaskLandscape;
+    
+    /// 设置转屏方向
     [self.player rotateToOrientation:UIInterfaceOrientationLandscapeRight animated:NO completion:nil];
-
     playerManager.assetURL = [NSURL URLWithString:@"https://www.apple.com/105/media/us/iphone-x/2017/01df5b43-28e4-4848-bf20-490c34a926a7/films/feature/iphone-x-feature-tpl-cc-us-20170912_1280x720h.mp4"];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    kAPPDelegate.allowOrentitaionRotation = NO;
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {

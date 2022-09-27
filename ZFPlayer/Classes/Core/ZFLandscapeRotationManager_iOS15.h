@@ -1,5 +1,5 @@
 //
-//  ZFLandScaprWindow.h
+//  ZFLandscapeRotationManager_iOS15.h
 //  ZFPlayer
 //
 // Copyright (c) 2020年 任子丰 ( http://github.com/renzifeng )
@@ -22,15 +22,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <UIKit/UIKit.h>
-#import "ZFLandscapeViewController.h"
-@class ZFLandscapeRotationManager;
+#import "ZFLandscapeRotationManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ZFLandscapeWindow : UIWindow
-
-@property (nonatomic, weak) ZFLandscapeRotationManager *rotationManager;
+@interface ZFLandscapeRotationManager_iOS15 : ZFLandscapeRotationManager
 
 @end
 

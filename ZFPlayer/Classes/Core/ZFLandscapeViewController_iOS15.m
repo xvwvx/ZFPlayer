@@ -1,8 +1,5 @@
 //
-//  ZFFullScreenViewController.m
-//  ZFPlayer
-//
-//  ZFFullscreenViewController.m
+//  ZFLandscapeViewController_iOS15.m
 //  ZFPlayer
 //
 // Copyright (c) 2020年 任子丰 ( http://github.com/renzifeng )
@@ -25,24 +22,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "ZFLandscapeViewController.h"
+#import "ZFLandscapeViewController_iOS15.h"
 
-@implementation ZFLandscapeViewController
+@implementation ZFLandscapeViewController_iOS15
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        _statusBarStyle = UIStatusBarStyleLightContent;
-        _statusBarAnimation = UIStatusBarAnimationSlide;
-    }
-    return self;
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    _playerSuperview = [[UIView alloc] initWithFrame:CGRectZero];
+    _playerSuperview.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:_playerSuperview];
 }
 
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
-    if ([self.delegate respondsToSelector:@selector(rotationFullscreenViewController:viewWillTransitionToSize:withTransitionCoordinator:)]) {
-        [self.delegate rotationFullscreenViewController:self viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
-    }
+- (BOOL)shouldAutorotate {
+    return [self.delegate ls_shouldAutorotate];
 }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
@@ -53,17 +45,4 @@
     return YES;
 }
 
-- (BOOL)prefersStatusBarHidden {
-    return self.statusBarHidden;
-}
-
-- (UIStatusBarStyle)preferredStatusBarStyle {
-    return self.statusBarStyle;
-}
-
-- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation {
-    return self.statusBarAnimation;
-}
-
 @end
-
